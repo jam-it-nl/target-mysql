@@ -277,7 +277,7 @@ class MySQLConnector(SQLConnector):
 
             self.logger.info("Opening connection")
             connection = self.connection
-            connection.execute(alter_sql)
+            connection.execute(sqlalchemy.text(alter_sql))
             connection.close()
         except Exception as e:
             raise RuntimeError(
@@ -291,9 +291,7 @@ class MySQLConnector(SQLConnector):
         try:
             self.logger.info("Opening connection")
             connection = self.connection
-            connection.execute(
-                f"""DROP TABLE {temp_table_name}"""
-            )
+            connection.execute(sqlalchemy.text(f"""DROP TABLE {temp_table_name}"""))
             connection.close()
         except Exception as e:
             pass
@@ -307,7 +305,7 @@ class MySQLConnector(SQLConnector):
 
         self.logger.info("Opening connection")
         connection = self.connection
-        connection.execute(ddl)
+        connection.execute(sqlalchemy.text(ddl))
         connection.close()
 
     def create_empty_table(
@@ -490,7 +488,7 @@ class MySQLConnector(SQLConnector):
             self.logger.info("Altering with SQL: %s", alter_sql)
             self.logger.info("Opening connection")
             connection = self.connection
-            connection.execute(alter_sql)
+            connection.execute(sqlalchemy.text(alter_sql))
             connection.close()
         except Exception as e:
             raise RuntimeError(
@@ -631,17 +629,17 @@ class MySQLSink(SQLSink):
 
         self.logger.info("Opening connection")
         connection = self.connection
-        connection.execute(merge_sql)
+        connection.execute(sqlalchemy.text(merge_sql))
         connection.close()
 
         self.logger.info("Opening connection")
         connection = self.connection
-        connection.execute("COMMIT")
+        connection.execute(sqlalchemy.text("COMMIT"))
         connection.close()
 
         self.logger.info("Opening connection")
         connection = self.connection
-        connection.execute(f"DROP TABLE {from_table_name}")
+        connection.execute(sqlalchemy.text(f"DROP TABLE {from_table_name}"))
         connection.close()
 
     def bulk_insert_records(
@@ -696,7 +694,7 @@ class MySQLSink(SQLSink):
 
         self.logger.info("Opening connection")
         connection = self.connection
-        connection.execute("COMMIT")
+        connection.execute(sqlalchemy.text("COMMIT"))
         connection.close()
 
         if isinstance(records, list):

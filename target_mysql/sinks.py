@@ -274,7 +274,9 @@ class MySQLConnector(SQLConnector):
             alter_sql = f"""ALTER TABLE {str(full_table_name)}
                 ADD COLUMN {str(create_column_clause)} """
             self.logger.info("Altering with SQL: %s", alter_sql)
-            self.connection.execute(alter_sql)
+            connection = self.connection
+            connection.execute(alter_sql)
+            connection.close()
         except Exception as e:
             raise RuntimeError(
                 f"Could not create column '{create_column_clause}' "
@@ -285,9 +287,11 @@ class MySQLConnector(SQLConnector):
         """Temp table from another table."""
 
         try:
-            self.connection.execute(
+            connection = self.connection
+            connection.execute(
                 f"""DROP TABLE {temp_table_name}"""
             )
+            connection.close()
         except Exception as e:
             pass
 
@@ -298,7 +302,9 @@ class MySQLConnector(SQLConnector):
             )
         """
 
-        self.connection.execute(ddl)
+        connection = self.connection
+        connection.execute(ddl)
+        connection.close()
 
     def create_empty_table(
             self,
@@ -478,7 +484,9 @@ class MySQLConnector(SQLConnector):
             alter_sql = f"""ALTER TABLE {str(full_table_name)}
                 MODIFY {str(column_name)} {str(compatible_sql_type)}"""
             self.logger.info("Altering with SQL: %s", alter_sql)
-            self.connection.execute(alter_sql)
+            connection = self.connection
+            connection.execute(alter_sql)
+            connection.close()
         except Exception as e:
             raise RuntimeError(
                 f"Could not convert column '{full_table_name}.{column_name}' "
@@ -616,11 +624,17 @@ class MySQLSink(SQLSink):
 
         self.logger.info("Merging with SQL: %s", merge_sql)
 
-        self.connection.execute(merge_sql)
+        connection = self.connection
+        connection.execute(merge_sql)
+        connection.close()
 
-        self.connection.execute("COMMIT")
+        connection = self.connection
+        connection.execute("COMMIT")
+        connection.close()
 
-        self.connection.execute(f"DROP TABLE {from_table_name}")
+        connection = self.connection
+        connection.execute(f"DROP TABLE {from_table_name}")
+        connection.close()
 
     def bulk_insert_records(
             self,
@@ -667,8 +681,13 @@ class MySQLSink(SQLSink):
                 insert_record[column.name] = val
             insert_records.append(insert_record)
 
-        self.connection.execute(insert_sql, insert_records)
-        self.connection.execute("COMMIT")
+        connection = self.connection
+        connection.execute(insert_sql, insert_records)
+        connection.close()
+
+        connection = self.connection
+        connection.execute("COMMIT")
+        connection.close()
 
         if isinstance(records, list):
             return len(records)  # If list, we can quickly return record count.

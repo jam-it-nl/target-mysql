@@ -274,6 +274,8 @@ class MySQLConnector(SQLConnector):
             alter_sql = f"""ALTER TABLE {str(full_table_name)}
                 ADD COLUMN {str(create_column_clause)} """
             self.logger.info("Altering with SQL: %s", alter_sql)
+
+            self.logger.info("Opening connection")
             connection = self.connection
             connection.execute(alter_sql)
             connection.close()
@@ -287,6 +289,7 @@ class MySQLConnector(SQLConnector):
         """Temp table from another table."""
 
         try:
+            self.logger.info("Opening connection")
             connection = self.connection
             connection.execute(
                 f"""DROP TABLE {temp_table_name}"""
@@ -302,6 +305,7 @@ class MySQLConnector(SQLConnector):
             )
         """
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(ddl)
         connection.close()
@@ -484,6 +488,7 @@ class MySQLConnector(SQLConnector):
             alter_sql = f"""ALTER TABLE {str(full_table_name)}
                 MODIFY {str(column_name)} {str(compatible_sql_type)}"""
             self.logger.info("Altering with SQL: %s", alter_sql)
+            self.logger.info("Opening connection")
             connection = self.connection
             connection.execute(alter_sql)
             connection.close()
@@ -624,14 +629,17 @@ class MySQLSink(SQLSink):
 
         self.logger.info("Merging with SQL: %s", merge_sql)
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(merge_sql)
         connection.close()
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute("COMMIT")
         connection.close()
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(f"DROP TABLE {from_table_name}")
         connection.close()
@@ -681,10 +689,12 @@ class MySQLSink(SQLSink):
                 insert_record[column.name] = val
             insert_records.append(insert_record)
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(insert_sql, insert_records)
         connection.close()
 
+        self.logger.info("Opening connection")
         connection = self.connection
         connection.execute("COMMIT")
         connection.close()

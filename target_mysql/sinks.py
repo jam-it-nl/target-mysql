@@ -161,19 +161,21 @@ class MySQLConnector(SQLConnector):
                 elif datelike_type == "binary":
                     return cast(sqlalchemy.types.TypeEngine, mysql.BINARY())
 
-            # The maximum row size for the used table type, not counting BLOBs, is 65535.
-            maxlength = jsonschema_type.get("maxLength", 1000)
-            data_type = mysql.VARCHAR(maxlength)
-            if maxlength <= 1000:
-                return cast(sqlalchemy.types.TypeEngine, mysql.VARCHAR(maxlength))
-            elif maxlength <= 65535:
-                return cast(sqlalchemy.types.TypeEngine, mysql.TEXT(maxlength))
-            elif maxlength <= 16777215:
-                return cast(sqlalchemy.types.TypeEngine, mysql.MEDIUMTEXT())
-            elif maxlength <= 4294967295:
-                return cast(sqlalchemy.types.TypeEngine, mysql.LONGTEXT())
+            # # The maximum row size for the used table type, not counting BLOBs, is 65535.
+            # maxlength = jsonschema_type.get("maxLength", 1000)
+            # data_type = mysql.VARCHAR(maxlength)
+            # if maxlength <= 1000:
+            #     return cast(sqlalchemy.types.TypeEngine, mysql.VARCHAR(maxlength))
+            # elif maxlength <= 65535:
+            #     return cast(sqlalchemy.types.TypeEngine, mysql.TEXT(maxlength))
+            # elif maxlength <= 16777215:
+            #     return cast(sqlalchemy.types.TypeEngine, mysql.MEDIUMTEXT())
+            # elif maxlength <= 4294967295:
+            #     return cast(sqlalchemy.types.TypeEngine, mysql.LONGTEXT())
 
-            return cast(sqlalchemy.types.TypeEngine, data_type)
+            # return cast(sqlalchemy.types.TypeEngine, data_type)
+
+            return cast(sqlalchemy.types.TypeEngine, mysql.LONGTEXT())
 
         if self._jsonschema_type_check(jsonschema_type, ("integer",)):
             minimum = jsonschema_type.get("minimum", -9223372036854775807)

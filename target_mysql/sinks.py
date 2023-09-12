@@ -38,7 +38,7 @@ class MySQLConnector(SQLConnector):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
 
         if "allow_column_alter" in super().config:
             self.allow_column_alter = super().config.get("allow_column_alter")
@@ -516,7 +516,7 @@ class MySQLSink(SQLSink):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.logger.setLevel(logging.DEBUG)
+        # self.logger.setLevel(logging.DEBUG)
 
     def process_batch(self, context: dict) -> None:
         """Process a batch with the given batch context.

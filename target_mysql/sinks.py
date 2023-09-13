@@ -634,15 +634,10 @@ class MySQLSink(SQLSink):
         self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(sqlalchemy.text(merge_sql))
-        connection.close()
-
-        self.logger.info("Opening connection")
-        connection = self.connection
+        
         connection.execute(sqlalchemy.text("COMMIT"))
         connection.close()
 
-        self.logger.info("Opening connection")
-        connection = self.connection
         connection.execute(sqlalchemy.text(f"DROP TABLE {from_table_name}"))
         connection.close()
 
@@ -694,10 +689,7 @@ class MySQLSink(SQLSink):
         self.logger.info("Opening connection")
         connection = self.connection
         connection.execute(insert_sql, insert_records)
-        connection.close()
-
-        self.logger.info("Opening connection")
-        connection = self.connection
+        
         connection.execute(sqlalchemy.text("COMMIT"))
         connection.close()
 

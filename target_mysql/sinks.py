@@ -8,6 +8,7 @@ import re
 import string
 import typing as t
 from typing import Any, Dict, Iterable, List, Optional, cast
+from textwrap import dedent
 
 import sqlalchemy
 from singer_sdk.connectors import SQLConnector
@@ -20,6 +21,7 @@ from sqlalchemy.engine import Engine, URL
 from sqlalchemy.schema import PrimaryKeyConstraint
 
 if t.TYPE_CHECKING:
+    from sqlalchemy.sql import Executable
     from sqlalchemy.engine.reflection import Inspector
 
 
@@ -662,7 +664,7 @@ class MySQLSink(SQLSink):
         Returns:
             True if table exists, False if not, None if unsure or undetectable.
         """
-        insert_sql = self.generate_insert_statement(
+        insert_sql = self.generate_escaped_insert_statement(
             full_table_name,
             schema,
         )
@@ -703,6 +705,30 @@ class MySQLSink(SQLSink):
             return len(records)  # If list, we can quickly return record count.
 
         return None  # Unknown record count.
+
+    def generate_escaped_insert_statement(
+        self,
+        full_table_name: str,
+        schema: dict,
+    ) -> str | Executable:
+        """Generate an insert statement for the given records.
+
+        Args:
+            full_table_name: the target table name.
+            schema: the JSON schema for the new table.
+
+        Returns:
+            An insert statement.
+        """
+        property_names = list(self.conform_schema(schema)["properties"].keys())
+        statement = dedent(
+            f"""\
+            INSERT INTO {full_table_name}
+            ({", ".join([f"`{name}`" for name in property_names])})
+            VALUES ({", ".join([f":{name}" for name in property_names])})
+            """,  # noqa: S608
+        )
+        return statement.rstrip()
 
     def column_representation(
             self,
